@@ -1,0 +1,8 @@
+.esphome/
+build/
+__pycache__/
+**/__pycache__/
+*.pyc
+.ruff_cache/
+.vscode/
+flows.md
