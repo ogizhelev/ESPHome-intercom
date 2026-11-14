@@ -60,6 +60,7 @@ intercom:
   # (GPIO13 HIGH = off-hook / engaged), which is hardware-confirmed to open the door.
   # Flip to true ONLY if your off-hook stage is wired active-low.
   # offhook_inverted: false
+  open_delay: 2s
   mute_inverted: true        # this device's mute line is active-low (confirmed); set false if yours is active-high
   # ring_inverted: false
   # dump_raw: false          # true -> log raw bus pulse widths for calibration
