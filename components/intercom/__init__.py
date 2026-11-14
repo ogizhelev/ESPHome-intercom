@@ -60,6 +60,7 @@ class IntercomConfig:
     DUMP_RAW = "dump_raw"
     FRAME_GAP = "frame_gap"
     RING_MIN_HOLD = "ring_min_hold"
+    OPEN_DELAY = "open_delay"
     CLEAR_ON_OPEN = "clear_on_open"
     AUTO_OPEN = "auto_open"
     MUTE = "mute"
@@ -112,6 +113,7 @@ class IntercomConfig:
                 cv.Optional(cls.DUMP_RAW, default=False): cv.boolean,
                 cv.Optional(cls.FRAME_GAP, default="120ms"): cv.positive_time_period_milliseconds,
                 cv.Optional(cls.RING_MIN_HOLD, default="120ms"): cv.positive_time_period_milliseconds,
+                cv.Optional(cls.OPEN_DELAY, default="2s"): cv.positive_time_period_milliseconds,
                 cv.Optional(cls.CLEAR_ON_OPEN, default=True): cv.boolean,
                 cv.Optional(cls.AUTO_OPEN, default={}): cls.auto_open_schema(),
                 cv.Optional(cls.MUTE, default={}): cls.mute_schema(),
@@ -211,6 +213,7 @@ class IntercomCodegen:
         cg.add(var.set_dump_raw(config[c.DUMP_RAW]))
         cg.add(var.set_frame_gap(config[c.FRAME_GAP].total_milliseconds))
         cg.add(var.set_ring_min_hold(config[c.RING_MIN_HOLD].total_milliseconds))
+        cg.add(var.set_open_delay(config[c.OPEN_DELAY].total_milliseconds))
         cg.add(var.set_clear_on_open(config[c.CLEAR_ON_OPEN]))
 
     async def _create_status_entities(self):

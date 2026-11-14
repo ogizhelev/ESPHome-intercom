@@ -124,6 +124,7 @@ class IntercomReceiver : public Component {
   void set_frame_gap(uint32_t ms) { this->frame_gap_us_ = ms * 1000; }  // bus-idle time that ends a ring
   void set_ring_min_hold(uint32_t ms) { this->ring_min_hold_ms_ = ms; }  // min RING on-time per burst
   void set_clear_on_open(bool v) { this->clear_on_open_ = v; }           // clear indicators when door opens
+  void set_open_delay(uint32_t ms) { this->open_delay_ms_ = ms; }        // delay before auto-open / button open fires
 
   // ---- codegen setters: entities ----
   void set_ring_sensor(binary_sensor::BinarySensor *b) { ring_sensor_ = b; }
@@ -151,9 +152,10 @@ class IntercomReceiver : public Component {
   void dump_config() override;
   float get_setup_priority() const override { return setup_priority::DATA; }
 
-  void open_door();    // public: full hook-flash door-open sequence
-  void pickup();       // go off-hook and hold (opens audio line, no door sequence)
-  void hangup_line();  // release off-hook (ends the call, no door sequence)
+  void open_door();          // immediate hook-flash door-open sequence
+  void open_door_delayed();  // wait open_delay_ms_ then open_door()
+  void pickup();             // go off-hook and hold (opens audio line, no door sequence)
+  void hangup_line();        // release off-hook (ends the call, no door sequence)
 
  protected:
   static void IRAM_ATTR gpio_isr(IntercomReceiver *self);
@@ -185,6 +187,7 @@ class IntercomReceiver : public Component {
   bool clear_on_open_{true};
   uint32_t frame_gap_us_{INTERCOM_FRAME_GAP_US};
   uint32_t ring_min_hold_ms_{120};
+  uint32_t open_delay_ms_{2000};
 
   // entities
   binary_sensor::BinarySensor *ring_sensor_{nullptr};

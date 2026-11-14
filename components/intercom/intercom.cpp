@@ -54,7 +54,7 @@ void IntercomSelect::control(const std::string &value) {
 
 void OpenDoorButton::press_action() {
   if (this->parent_ != nullptr)
-    this->parent_->open_door();
+    this->parent_->open_door_delayed();
 }
 
 void PickupButton::press_action() {
@@ -358,7 +358,7 @@ void IntercomReceiver::maybe_auto_open_(bool from_ring, uint32_t decoded_id) {
   }
   if (trig) {
     ESP_LOGI(TAG, "Auto-open triggered (%s)", from_ring ? "ring" : "apartment id");
-    this->open_door();
+    this->open_door_delayed();
   }
 }
 
@@ -414,6 +414,15 @@ static const DoorStep DOOR_SEQ[] = {
 };
 static const uint8_t DOOR_SEQ_LEN = sizeof(DOOR_SEQ) / sizeof(DOOR_SEQ[0]);
 
+void IntercomReceiver::open_door_delayed() {
+  if (this->open_delay_ms_ == 0) {
+    this->open_door();
+    return;
+  }
+  ESP_LOGI(TAG, "Open door: waiting %ums before hook-flash", this->open_delay_ms_);
+  this->set_timeout("open_delay", this->open_delay_ms_, [this]() { this->open_door(); });
+}
+
 void IntercomReceiver::open_door() {
   ESP_LOGI(TAG, "Open door: running hook-flash sequence");
   this->pickup_active_ = false;  // door sequence takes over the off-hook pin
@@ -436,6 +445,7 @@ void IntercomReceiver::pickup() {
 void IntercomReceiver::hangup_line() {
   ESP_LOGI(TAG, "Hang up: releasing off-hook");
   this->pickup_active_ = false;
+  this->cancel_timeout("open_delay");  // cancel any pending delayed open
   this->cancel_timeout("door");
   this->drive_offhook_(false);
 }
